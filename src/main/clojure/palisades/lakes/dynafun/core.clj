@@ -22,7 +22,12 @@
 (defmacro signature 
   
   "Return an appropriate implementation of `Signature` for the
-   `Class` arguments."
+   `Class` arguments..
+
+   `palisades.lakes.dynafun.core/signature` can only be used 
+   as a dispatch function with dynafun
+   defined with `palisades.lakes.dynafun.core/defmulti`."
+  
   ([c0] `(with-meta c0 {:tag 'Class}))
   ([c0 c1] 
     `(Signature2.

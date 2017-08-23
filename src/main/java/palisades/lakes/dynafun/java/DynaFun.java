@@ -17,7 +17,7 @@ import palisades.lakes.dynafun.java.signature.Signatures;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-08-18
- * @version 2017-08-21
+ * @version 2017-08-22
  */
 
 @SuppressWarnings("unchecked")
