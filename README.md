@@ -17,6 +17,31 @@ Initial ideas:
 - only simple arglists (no destructuring)
 - single method per arity equivalent to Clojure `defn`
 - high performance with hinted primitives in and out
+- Clojure functions are nearly opaque; 
+the only API is `clojure.lang.IFn/invoke().  
+    Dynamic functions should be fully first class, with 
+    an API exposing, at a minimum:
+    * the function name
+    * any hints on the return value
+    * the arglists, including type hints
+    * the relevant parts of the lexical environment in which it
+    was created, a list of bindings including names, values,
+    and type hints, possibly other hints as well.
+    * possibly also the dynamic environment
+    * the expressions that defined the bodies
+    * constructors that are functions, not just macros and special
+     forms.
+    For example, it should be possible to do something like
+    ```
+    (defn compose ^IFn [^IFn f ^IFn g]
+      (assert (matches? (arglist f) (return-value g))
+      (function (str (name f) "-o-" (name g)) (arglist g)
+        `(f (g ~(arglist g)))))
+    ```
+    It should be possible to examine the returned function object,
+    determine that it is the composition of `f` and `g`, and 
+    generate a new function by supplying a modified environment, 
+    say, by substituting something for 'f' or 'g'. 
  
 ## Usage
 

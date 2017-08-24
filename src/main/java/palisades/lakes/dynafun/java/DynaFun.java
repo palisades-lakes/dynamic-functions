@@ -8,32 +8,37 @@ import java.util.Set;
 
 import clojure.lang.AFn;
 import clojure.lang.IFn;
-
+import palisades.lakes.dynafun.java.signature.Signature2;
+import palisades.lakes.dynafun.java.signature.Signature3;
 import palisades.lakes.dynafun.java.signature.Signatures;
 
-/**
- * Less flexible, but faster alternative to clojure.lang.MultiFn
+/** Less flexible, but faster alternative to 
+ * <code>clojure.lang.MultiFn</code>
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-08-18
  * @version 2017-08-22
  */
+
 @SuppressWarnings("unchecked")
 public final class DynaFun extends AFn {
 
   private final String name;
 
-  // TODO: minimal immutable table implementation.
+  // TODO: minimal immutable map implementation.
   // Only need get(), maybe size(), add and remove entry
   // constructors
+  
   private final Map methodTable;
 
   // TODO: minimal immutable Multimap implementation.
+  
   private final Map preferTable;
 
-  // TODO: minimal immutable table implementation.
+  // TODO: minimal immutable map implementation.
   // Only need get(), maybe size(), add and remove entry
   // constructors
+  
   private Map methodCache;
 
   // --------------------------------------------------------------
@@ -41,8 +46,10 @@ public final class DynaFun extends AFn {
   // --------------------------------------------------------------
   // private because it doesn't copy the input maps.
 
-  private DynaFun (final String n, final Map mTable,
+  private DynaFun (final String n, 
+                   final Map mTable,
                    final Map pTable) {
+    assert (null != n) && (! n.isEmpty());
     name = n;
     methodTable = mTable;
     preferTable = pTable;
@@ -188,38 +195,49 @@ public final class DynaFun extends AFn {
 
   @Override
   public final Object invoke () {
-    return getFn(
-      Signatures.extract())
+    return 
+      getFn(null)
       .invoke(); }
 
   @Override
   public final Object invoke (final Object arg1) {
-    return getFn(
-      arg1.getClass())
-      .invoke(arg1); }
+    final Class k = arg1.getClass();
+    final IFn f = getMethod(k);
+    return
+      f.invoke(arg1); }
 
   @Override
   public final Object invoke (final Object arg1,
                               final Object arg2) {
-    final Object k = Signatures.extract(arg1,arg2);
+    final Object k = new Signature2(
+      arg1.getClass(),
+      arg2.getClass());
     final IFn f = getMethod(k);
-    return f.invoke(arg1,arg2); }
+    return 
+      f.invoke(arg1,arg2); }
 
   @Override
   public final Object invoke (final Object arg1,
                               final Object arg2,
                               final Object arg3) {
-    return getFn(
-      Signatures.extract(arg1,arg2,arg3))
-      .invoke(arg1,arg2,arg3); }
-
+    final Object k = new Signature3(
+      arg1.getClass(),
+      arg2.getClass(),
+      arg3.getClass());
+    final IFn f = getMethod(k); 
+    return 
+      f.invoke(arg1,arg2,arg3); }
+  
   @Override
   public final Object invoke (final Object arg1,
                               final Object arg2,
                               final Object arg3,
                               final Object arg4) {
-    return getFn(Signatures.extract(arg1,arg2,arg3,arg4))
-      .invoke(arg1,arg2,arg3,arg4); }
+    return 
+      getFn(
+        Signatures.extract(arg1,arg2,arg3,arg4))
+      .invoke(
+        arg1,arg2,arg3,arg4); }
 
   @Override
   public final Object invoke (final Object arg1,
