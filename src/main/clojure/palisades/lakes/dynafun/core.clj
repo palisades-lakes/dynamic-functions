@@ -8,9 +8,12 @@
          (no hierarchies, class-based only), but much faster. "
    :author "palisades dot lakes at gmail dot com"
    :since "2017-06-02"
-   :version "2017-08-19"}
+   :version "2017-08-30"}
   
   (:refer-clojure :exclude [defmulti defmethod prefer-method])
+  
+  (:require [clojure.reflect :as r]
+            [clojure.string :as s])
   
   (:import [clojure.lang IFn IMeta]
            [palisades.lakes.dynafun.java DynaFun]
@@ -91,11 +94,14 @@
   (.addMethod f signature method))
 
 (defmacro defmethod [f args & body]
-  `(alter-var-root 
-     (var ~f) 
-     add-method 
-     (Signatures/get ~(mapv #(:tag (meta %) 'Object) args))
-     (fn ~f ~args ~@body)))
+  (let [names (mapv #(s/replace (:tag (meta %) 'Object) "." "")
+                    args)
+        m (symbol (str f "_" (s/join "_" names)))]
+    `(alter-var-root 
+       (var ~f) 
+       add-method 
+       (Signatures/get ~(mapv #(:tag (meta %) 'Object) args))
+       (fn ~m ~args ~@body))))
 ;;----------------------------------------------------------------
 ;; preferences
 ;;----------------------------------------------------------------
@@ -123,4 +129,4 @@
 (defmacro defpreference [f signature0 signature1]
   `(alter-var-root 
      (var ~f) prefer-method ~signature0 ~signature1))
- ;----------------------------------------------------------------
+;----------------------------------------------------------------
