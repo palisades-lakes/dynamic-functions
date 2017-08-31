@@ -8,6 +8,7 @@ import java.util.Set;
 
 import clojure.lang.AFn;
 import clojure.lang.IFn;
+import clojure.lang.ISeq;
 import palisades.lakes.dynafun.java.signature.Signature2;
 import palisades.lakes.dynafun.java.signature.Signature3;
 import palisades.lakes.dynafun.java.signature.Signatures;
@@ -17,11 +18,11 @@ import palisades.lakes.dynafun.java.signature.Signatures;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-08-18
- * @version 2017-08-22
+ * @version 2017-08-30
  */
 
 @SuppressWarnings("unchecked")
-public final class DynaFun extends AFn {
+public final class DynaFun implements IFn {
 
   private final String name;
 
@@ -29,21 +30,21 @@ public final class DynaFun extends AFn {
   // Only need get(), maybe size(), add and remove entry
   // constructors
   
-  private final Map methodTable;
+  private final Map<Object,IFn> methodTable;
 
   // TODO: minimal immutable Multimap implementation.
   
-  private final Map preferTable;
+  private final Map<Object,Set> preferTable;
 
   // TODO: minimal immutable map implementation.
   // Only need get(), maybe size(), add and remove entry
   // constructors
   
-  private Map methodCache;
+  private Map<Object,IFn> methodCache;
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
   // construction
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
   // private because it doesn't copy the input maps.
 
   private DynaFun (final String n, 
@@ -61,52 +62,59 @@ public final class DynaFun extends AFn {
       Collections.emptyMap(),
       Collections.emptyMap()); }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
   // TODO: move to minimal immutable map and multimap classes
 
-  private static final Map assoc (final Map m, final Object k,
+  private static final Map assoc (final Map m, 
+                                  final Object k,
                                   final Object v) {
     final HashMap b = new HashMap(m);
     b.put(k,v);
     return b; }
 
-  private static final Map dissoc (final Map m, final Object k) {
-    final Map b = new HashMap(m);
-    b.remove(k);
-    return b; }
+//  private static final Map dissoc (final Map m, 
+//                                   final Object k) {
+//    final Map b = new HashMap(m);
+//    b.remove(k);
+//    return b; }
 
-  private static final Set add (final Set s, final Object v) {
+  private static final Set add (final Set s, 
+                                final Object v) {
     if (null == s) { return Collections.singleton(v); }
     final Set b = new HashSet(s);
     b.add(v);
     return b; }
 
-  private static final Map add (final Map m, final Object k,
+  private static final Map add (final Map m, 
+                                final Object k,
                                 final Object v) {
     final Map b = new HashMap(m);
     b.put(k,add((Set) b.get(k),v));
     return b; }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
   public final DynaFun addMethod (final Object signature,
                                   final IFn method) {
-    return new DynaFun(
+    return 
+      new DynaFun(
       name,
       assoc(methodTable,signature,method),
       preferTable); }
 
-  public final DynaFun removeMethod (final Object signature) {
-    return new DynaFun(
-      name,
-      dissoc(methodTable,signature),
-      preferTable); }
+//  public final DynaFun removeMethod (final Object signature) {
+//    return 
+//      new DynaFun(
+//      name,
+//      dissoc(methodTable,signature),
+//      preferTable); }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
-  private final boolean prefers (final Object x, final Object y) {
+  private final boolean prefers (final Object x, 
+                                 final Object y) {
 
-    final Set xprefs = (Set) preferTable.get(x);
+    final Set xprefs = preferTable.get(x);
 
     if (xprefs != null) {
       // is there an explicit prefer-method entry for (x,y)?
@@ -127,7 +135,7 @@ public final class DynaFun extends AFn {
     
     return false; }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
   public final DynaFun preferMethod (final Object x,
                                      final Object y) {
@@ -137,18 +145,19 @@ public final class DynaFun extends AFn {
           "Preference conflict in multimethod '%s':" + 
             "%s is already preferred to %s",
             name,y,x)); }
-    return new DynaFun(
+    return 
+      new DynaFun(
       name,
       methodTable,
       add(preferTable,x,y)); }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
   private final boolean dominates (final Object x,
                                    final Object y) {
     return prefers(x,y) || Signatures.isAssignableFrom(y,x); }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
   private final IFn findAndCacheBestMethod (final Object signature) {
     Map.Entry bestEntry = null;
@@ -173,30 +182,27 @@ public final class DynaFun extends AFn {
     methodCache = assoc(methodCache,signature,method);
     return method; }
 
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
-  public final IFn getMethod (final Object signature) {
-    final IFn method = (IFn) methodCache.get(signature);
-    if (null != method) { return method; }
-    return findAndCacheBestMethod(signature); }
-
-  private final IFn getFn (final Object signature) {
-    final IFn method = getMethod(signature);
+  private final IFn getMethod (final Object signature) {
+    final IFn cached = methodCache.get(signature);
+    if (null != cached) { return cached; }
+    final IFn method = findAndCacheBestMethod(signature); 
     if (method == null) { 
       throw new IllegalArgumentException(
         String.format(
           "No method in multimethod '%s' for signature: %s",name,
           signature)); }
     return method; }
-
-  // --------------------------------------------------------------
+    
+  //--------------------------------------------------------------
   // IFn interface
-  // --------------------------------------------------------------
+  //--------------------------------------------------------------
 
   @Override
   public final Object invoke () {
     return 
-      getFn(null)
+      getMethod(null)
       .invoke(); }
 
   @Override
@@ -234,7 +240,7 @@ public final class DynaFun extends AFn {
                               final Object arg3,
                               final Object arg4) {
     return 
-      getFn(
+      getMethod(
         Signatures.extract(arg1,arg2,arg3,arg4))
       .invoke(
         arg1,arg2,arg3,arg4); }
@@ -245,7 +251,7 @@ public final class DynaFun extends AFn {
                               final Object arg3,
                               final Object arg4,
                               final Object arg5) {
-    return getFn(Signatures.extract(arg1,arg2,arg3,arg4,arg5))
+    return getMethod(Signatures.extract(arg1,arg2,arg3,arg4,arg5))
       .invoke(arg1,arg2,arg3,arg4,arg5); }
 
   @Override
@@ -255,7 +261,7 @@ public final class DynaFun extends AFn {
                               final Object arg4,
                               final Object arg5,
                               final Object arg6) {
-    return getFn(
+    return getMethod(
       Signatures.extract(arg1,arg2,arg3,arg4,arg5,arg6))
       .invoke(arg1,arg2,arg3,arg4,arg5,arg6); }
 
@@ -267,7 +273,7 @@ public final class DynaFun extends AFn {
                               final Object arg5,
                               final Object arg6,
                               final Object arg7) {
-    return getFn(
+    return getMethod(
       Signatures.extract(arg1,arg2,arg3,arg4,arg5,arg6,arg7))
       .invoke(arg1,arg2,arg3,arg4,arg5,arg6,arg7); }
 
@@ -280,7 +286,7 @@ public final class DynaFun extends AFn {
                               final Object arg6,
                               final Object arg7,
                               final Object arg8) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8))
       .invoke(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8); }
@@ -295,7 +301,7 @@ public final class DynaFun extends AFn {
                               final Object arg7,
                               final Object arg8,
                               final Object arg9) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9))
       .invoke(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9); }
@@ -311,7 +317,7 @@ public final class DynaFun extends AFn {
                               final Object arg8,
                               final Object arg9,
                               final Object arg10) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10))
       .invoke(
@@ -329,7 +335,7 @@ public final class DynaFun extends AFn {
                               final Object arg9,
                               final Object arg10,
                               final Object arg11) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11))
@@ -350,7 +356,7 @@ public final class DynaFun extends AFn {
                               final Object arg10,
                               final Object arg11,
                               final Object arg12) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12))
@@ -372,7 +378,7 @@ public final class DynaFun extends AFn {
                               final Object arg11,
                               final Object arg12,
                               final Object arg13) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13))
@@ -395,7 +401,7 @@ public final class DynaFun extends AFn {
                               final Object arg12,
                               final Object arg13,
                               final Object arg14) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13,arg14))
@@ -419,7 +425,7 @@ public final class DynaFun extends AFn {
                               final Object arg13,
                               final Object arg14,
                               final Object arg15) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13,arg14,arg15))
@@ -444,7 +450,7 @@ public final class DynaFun extends AFn {
                               final Object arg14,
                               final Object arg15,
                               final Object arg16) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13,arg14,arg15,arg16))
@@ -470,7 +476,7 @@ public final class DynaFun extends AFn {
                               final Object arg15,
                               final Object arg16,
                               final Object arg17) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13,arg14,arg15,arg16,arg17))
@@ -497,7 +503,7 @@ public final class DynaFun extends AFn {
                               final Object arg16,
                               final Object arg17,
                               final Object arg18) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13,arg14,arg15,arg16,arg17,arg18))
@@ -525,7 +531,7 @@ public final class DynaFun extends AFn {
                               final Object arg17,
                               final Object arg18,
                               final Object arg19) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,
         arg11,arg12,arg13,arg14,arg15,arg16,arg17,arg18,arg19))
@@ -554,7 +560,7 @@ public final class DynaFun extends AFn {
                               final Object arg18,
                               final Object arg19,
                               final Object arg20) {
-    return getFn(
+    return getMethod(
       Signatures.extract(
         arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,
         arg12,arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20))
@@ -584,12 +590,24 @@ public final class DynaFun extends AFn {
                               final Object arg19,
                               final Object arg20,
                               final Object... args) {
-    return getFn(Signatures.extract(arg1,arg2,arg3,arg4,arg5,arg6,
+    return getMethod(Signatures.extract(arg1,arg2,arg3,arg4,arg5,arg6,
       arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,
       arg17,arg18,arg19,arg20,args)).invoke(arg1,arg2,arg3,arg4,
         arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,
         arg15,arg16,arg17,arg18,arg19,arg20,args);
   }
+  //--------------------------------------------------------------
 
-  // --------------------------------------------------------------
+  @Override
+  public final Object call () throws Exception {
+    return invoke(); }
+
+  @Override
+  public final void run () { invoke();  }
+
+  @Override
+  public final Object applyTo (ISeq args) {
+    return AFn.applyToHelper(this, args); }
+
+  //--------------------------------------------------------------
 }
