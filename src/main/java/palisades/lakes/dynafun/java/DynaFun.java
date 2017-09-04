@@ -18,7 +18,7 @@ import palisades.lakes.dynafun.java.signature.Signatures;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-08-18
- * @version 2017-09-01
+ * @version 2017-09-03
  */
 
 @SuppressWarnings("unchecked")
@@ -56,7 +56,7 @@ public final class DynaFun implements IFn {
     preferTable = pTable;
     methodCache = new HashMap(mTable); }
 
-  public static final DynaFun make (final String name) {
+  public static final DynaFun empty (final String name) {
     return new DynaFun(
       name,
       Collections.emptyMap(),
