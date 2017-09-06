@@ -9,7 +9,7 @@ import clojure.lang.ArraySeq;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-06-05
- * @version 2017-08-18
+ * @version 2017-09-05
  */
 
 @SuppressWarnings("unchecked")
@@ -66,7 +66,8 @@ public final class SignatureN implements Signature {
     return true; }
 
   //--------------------------------------------------------------
-
+  // TODO: next 2 methods might not always be false.
+  
   @Override
   public final boolean equiv (final Class k0,
                               final Class k1) {
@@ -80,9 +81,7 @@ public final class SignatureN implements Signature {
 
   @Override
   public final boolean equiv (final Class... ks) {
-    for (int i=0;i<classes.length;i++) {
-      if (! classes[i].equals(ks[i])) { return false; } }
-    return true; }
+    return classes.equals(ks); }
 
   //--------------------------------------------------------------
   // Object interface
@@ -95,11 +94,17 @@ public final class SignatureN implements Signature {
       result = (37*result) + c.hashCode(); }
     return result; }
 
+  public final boolean equals (final SignatureN that) {
+    if (this == that) { return true; }
+    if (classes.equals(that.classes)) { return true; } 
+    return false; }
+    
   @Override
   public final boolean equals (final Object that) {
     if (this == that) { return true; }
     if (that instanceof SignatureN) {
-      return equiv(((SignatureN) that).classes); }
+      if (classes.equals(((SignatureN) that).classes)) { 
+        return true; } }
     return false; }
 
   @Override
