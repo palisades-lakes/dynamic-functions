@@ -82,7 +82,6 @@ public final class DynaFun implements IFn {
 
     // For multi-arity dispatch functions, we need to check the
     // keys of the preferTable.
-    // TODO: does this make the next loop unnecessary?
     for (final Object k : preferTable.keySet()) {
       if ((!x.equals(k)) 
         && Signatures.isAssignableFrom(k,x) 
