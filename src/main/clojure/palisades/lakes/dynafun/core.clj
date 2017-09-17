@@ -8,17 +8,33 @@
          (no hierarchies, class-based only), but much faster. "
    :author "palisades dot lakes at gmail dot com"
    :since "2017-06-02"
-   :version "2017-08-30"}
+   :version "2017-09-16"}
   
-  (:refer-clojure :exclude [defmulti defmethod prefer-method])
+  (:refer-clojure :exclude [assoc dissoc merge
+                            defmethod prefer-method])
   
   (:require [clojure.reflect :as r]
             [clojure.string :as s])
   
   (:import [clojure.lang IFn IMeta]
-           [palisades.lakes.dynafun.java DynaFun]
+           [palisades.lakes.dynafun.java DynaFun MetaFn]
            [palisades.lakes.dynafun.java.signature Signature
             Signature2 Signature3 SignatureN Signatures]))
+;;----------------------------------------------------------------
+;; more efficient meta data wrapper for functions
+;; generalize so functions work with all IObj?
+;;----------------------------------------------------------------
+(defn with ^clojure.lang.IFn [^clojure.lang.IFn f m]
+  (MetaFn/withMeta f m))
+
+(defn merge ^clojure.lang.IFn [^clojure.lang.IFn f m]
+  (MetaFn/withMeta f (clojure.core/merge (meta f) m)))
+  
+(defn assoc ^clojure.lang.IFn [^clojure.lang.IFn f & args]
+  (MetaFn/withMeta f (clojure.core/assoc (meta f) args)))
+  
+(defn dissoc ^clojure.lang.IFn [^clojure.lang.IFn f & args]
+  (MetaFn/withMeta f (clojure.core/dissoc (meta f) args)))
 ;;----------------------------------------------------------------
 ;; signatures
 ;;----------------------------------------------------------------
