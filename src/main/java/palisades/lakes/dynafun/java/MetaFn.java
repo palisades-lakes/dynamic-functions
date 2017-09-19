@@ -12,13 +12,15 @@ import clojure.lang.ISeq;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-09-16
- * @version 2017-09-16
+ * @version 2017-09-18
  */
 
 @SuppressWarnings("unchecked")
-public final class MetaFn implements IFn, IObj {
+public class MetaFn implements IFn, IObj {
 
   private final IFn _inner;
+  final IFn getInner () { return _inner; }
+  
   private final IPersistentMap _meta;
 
   //--------------------------------------------------------------
@@ -30,17 +32,25 @@ public final class MetaFn implements IFn, IObj {
                   final IPersistentMap m) {
     _inner = f;
     _meta = m; }
- 
+
   // TODO: should this return IObj or IFn?
-  
+  // TODO: should this take IFn or IObj as input?
+
   public static final IObj withMeta (final IFn f,
-                                    final IPersistentMap m) {
+                                     final IPersistentMap m) {
+    
+    if (f instanceof DD) {
+      return new DD((IFn.DD) ((DD) f).getInner(),m); }
+    
     if (f instanceof MetaFn) {
       return new MetaFn(((MetaFn) f)._inner,m); }
-    if (f instanceof DynaFun) {
-      return ((DynaFun) f).withMeta(m); }
+    
+    if (f instanceof DynaFun) { return ((DynaFun) f).withMeta(m); }
+    
+    if (f instanceof IFn.DD) { return new DD((IFn.DD) f,m); }
+    
     return new MetaFn(f,m); }
-  
+
   //--------------------------------------------------------------
   // IObj interface
   //--------------------------------------------------------------
@@ -83,7 +93,7 @@ public final class MetaFn implements IFn, IObj {
     return _inner.invoke(x0,x1,x2,x3); }
 
   // TODO: fill in missing invokes
-  
+
   @Override
   public final Object invoke (final Object x0,
                               final Object x1,
@@ -378,4 +388,26 @@ public final class MetaFn implements IFn, IObj {
     return _inner.applyTo(xs); }
 
   //--------------------------------------------------------------
+  // optimize selected special cases
+  //--------------------------------------------------------------
+
+  private static final class DD extends MetaFn implements IFn.DD {
+
+    //--------------------------------------------------------------
+    // construction
+    //--------------------------------------------------------------
+
+    DD (final IFn.DD f,
+      final IPersistentMap m) {
+      super((IFn) f, m); }
+
+    //--------------------------------------------------------------
+
+    @Override
+    public double invokePrim (final double x) {
+      return ((IFn.DD) getInner()).invokePrim(x); }
+
+    //--------------------------------------------------------------
+  }
+
 }
