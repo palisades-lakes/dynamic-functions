@@ -1,6 +1,7 @@
 package palisades.lakes.dynafun.java;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import palisades.lakes.dynafun.java.signature.Signatures;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-09-03
- * @version 2017-09-16
+ * @version 2017-09-22
  */
 
 @SuppressWarnings("unchecked")
@@ -144,26 +145,36 @@ public final class DynaFun implements IFn, IObj {
   // arity 1
   //--------------------------------------------------------------
 
+  private final Set updateMinima (final Map.Entry e0,
+                                  final Set<Map.Entry> minima) {
+    boolean add = true;
+    final Set<Map.Entry> updated = new HashSet(minima.size());
+    final Object k0 = e0.getKey();
+    for (final Map.Entry e : minima) {
+      final Object k = e.getKey();
+      if (dominates(k,k0)) { add = false; }
+      if (! dominates(k0,k)) { updated.add(e); } } 
+    if (add) { updated.add(e0); }
+    return updated; }
+  
+  private static final Map.Entry first (final Set<Map.Entry> i) {
+    return i.iterator().next(); }
+  
   private final IFn findAndCacheBestMethod (final Class k) {
-    Map.Entry bestEntry = null;
+    Set<Map.Entry> minima = new HashSet(); // should be immutable?
     for (final Object o : methodTable.entrySet()) {
       final Map.Entry e = (Map.Entry) o;
       if (Signatures.isAssignableFrom(e.getKey(),k)) {
-        if ((bestEntry == null)
-          || dominates(e.getKey(),bestEntry.getKey())) {
-          bestEntry = e; }
-        if (!dominates(bestEntry.getKey(),e.getKey())) { 
-          throw new IllegalArgumentException(
-            String.format(
-              "Multiple methods in multimethod '%s' "
-                + "match signature value: %s -> %s and %s, "
-                + "and neither is preferred",
-                _name,
-                k,
-                e.getKey(),
-                bestEntry.getKey())); } } }
-    if (null == bestEntry) { return null; }
-    final IFn method = (IFn) bestEntry.getValue();
+        minima = updateMinima(e,minima); } } 
+     if (minima.isEmpty()) { return null; } 
+     else if (1 != minima.size()) {
+       throw new IllegalArgumentException(
+         String.format(
+           "Multiple methods in multimethod '%s' " + 
+             "match dispatch value: %s -> %s, " +
+             "and none is preferred",
+             _name, k, minima));  }
+    final IFn method = (IFn) first(minima).getValue();
     cache1 = cache1.assoc(k,method);
     return method; }
 
