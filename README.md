@@ -1,4 +1,6 @@
-# dynamic-functions [![Clojars Project](https://img.shields.io/clojars/v/palisades-lakes/dynamic-functions.svg)](https://clojars.org/palisades-lakes/dynamic-functions)
+# dynamic-functions 
+
+[![Clojars Project](https://img.shields.io/clojars/v/palisades-lakes/dynamic-functions.svg)](https://clojars.org/palisades-lakes/dynamic-functions)
 
 This library is currently a vehicle for experimenting with 
 design and implementation alternatives for generic functions
