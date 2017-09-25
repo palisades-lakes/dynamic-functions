@@ -28,7 +28,7 @@
   <connection>${github-url}</connection>
   <developerConnection>${github-url}</developerConnection>
   <url>${github-url}</url>
-  <tag>dynamic-functions-0.0.7</tag>
+  <tag>HEAD</tag>
  </scm>
  <distributionManagement>
   <repository>
@@ -428,7 +428,7 @@
  </dependencies>
  <groupId>palisades-lakes</groupId>
  <artifactId>dynamic-functions</artifactId>
- <version>0.0.7</version>
+ <version>0.0.8-SNAPSHOT</version>
  <description>
  "Dynamic functions aka generic functions aka multimethods."
  </description>
