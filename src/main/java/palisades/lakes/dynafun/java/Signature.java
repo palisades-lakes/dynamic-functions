@@ -1,4 +1,4 @@
-package palisades.lakes.dynafun.java.signature;
+package palisades.lakes.dynafun.java;
 
 /** A list of classes, for optimizing multimethod dispatch
  * functions.

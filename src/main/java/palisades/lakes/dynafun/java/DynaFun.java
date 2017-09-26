@@ -10,10 +10,6 @@ import clojure.lang.IObj;
 import clojure.lang.IPersistentMap;
 import clojure.lang.ISeq;
 import clojure.lang.PersistentArrayMap;
-import palisades.lakes.dynafun.java.signature.Signature2;
-import palisades.lakes.dynafun.java.signature.Signature3;
-import palisades.lakes.dynafun.java.signature.SignatureN;
-import palisades.lakes.dynafun.java.signature.Signatures;
 
 /** Dynamic functions whose methods are all arity 1.
  *

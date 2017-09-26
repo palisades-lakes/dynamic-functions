@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import clojure.lang.IFn;
-import palisades.lakes.dynafun.java.signature.SignatureN;
 
 /** Utilities for 'immutable' maps.
  *

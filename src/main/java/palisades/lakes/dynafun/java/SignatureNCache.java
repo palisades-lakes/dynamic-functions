@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import clojure.lang.IFn;
-import palisades.lakes.dynafun.java.signature.SignatureN;
 
 /** minimal immutable lookup table with linear search.
  *

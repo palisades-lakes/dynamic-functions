@@ -8,7 +8,7 @@
          (no hierarchies, class-based only), but much faster. "
    :author "palisades dot lakes at gmail dot com"
    :since "2017-06-02"
-   :version "2017-09-16"}
+   :version "2017-09-26"}
   
   (:refer-clojure :exclude [assoc dissoc merge
                             defmethod prefer-method])
@@ -17,9 +17,9 @@
             [clojure.string :as s])
   
   (:import [clojure.lang IFn IMeta]
-           [palisades.lakes.dynafun.java DynaFun MetaFn]
-           [palisades.lakes.dynafun.java.signature Signature
-            Signature2 Signature3 SignatureN Signatures]))
+           [palisades.lakes.dynafun.java DynaFun MetaFn
+            Signature Signature2 Signature3 SignatureN 
+            Signatures]))
 ;;----------------------------------------------------------------
 ;; more efficient meta data wrapper for functions
 ;; generalize so functions work with all IObj?

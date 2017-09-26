@@ -1,4 +1,4 @@
-package palisades.lakes.dynafun.java.signature;
+package palisades.lakes.dynafun.java;
 
 import java.util.List;
 
