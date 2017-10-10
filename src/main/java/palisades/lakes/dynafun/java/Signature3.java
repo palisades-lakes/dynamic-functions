@@ -5,7 +5,7 @@ package palisades.lakes.dynafun.java;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-06-05
- * @version 2017-08-18
+ * @version 2017-10-09
  */
 
 @SuppressWarnings("unchecked")
@@ -28,15 +28,9 @@ public final class Signature3 implements Signature {
   //--------------------------------------------------------------
 
   @Override
-  public final int size () { return 3; }
-  @Override
   public final boolean isAssignableFrom (final Signature that) {
     if (that instanceof Signature3) {
       return isAssignableFrom((Signature3) that); }
-    return false; }
-
-  @Override
-  public final boolean isAssignableFrom (final Class k) {
     return false; }
 
   @Override
@@ -55,26 +49,6 @@ public final class Signature3 implements Signature {
 
   @Override
   public final boolean isAssignableFrom (final Class... ks) {
-    return false; }
-
-  //--------------------------------------------------------------
-
-  @Override
-  public final boolean equiv (final Class k0,
-                              final Class k1) {
-    return false; }
-
-  @Override
-  public final boolean equiv (final Class k0,
-                              final Class k1,
-                              final Class k2) {
-    return
-      class0.equals(k0) &&
-      class1.equals(k1) &&
-      class2.equals(k2); }
-
-  @Override
-  public final boolean equiv (final Class... ks) {
     return false; }
 
   //--------------------------------------------------------------

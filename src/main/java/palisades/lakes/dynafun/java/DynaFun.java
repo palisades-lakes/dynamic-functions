@@ -15,7 +15,7 @@ import clojure.lang.PersistentArrayMap;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-09-03
- * @version 2017-09-22
+ * @version 2017-10-09
  */
 
 @SuppressWarnings("unchecked")
@@ -91,6 +91,29 @@ public final class DynaFun implements IFn, IObj {
 
   //--------------------------------------------------------------
 
+  private static final boolean isAssignableFrom (final Class[] c0,
+                                                final Class[] c1) {
+    if (c0.length != c1.length) { return false; }
+    for (int i=0;i<c0.length;i++) {
+      if (! c0[i].isAssignableFrom(c1[i])) { return false; } }
+    return true; }
+
+  private static final boolean isAssignableFrom (final Object s0,
+                                                final Object s1) {
+    if ((s0 instanceof Class) && (s1 instanceof Class)) {
+      return ((Class) s0).isAssignableFrom((Class) s1); }
+    if ((s0 instanceof Class[]) && (s1 instanceof Class[])) {
+      return isAssignableFrom((Class[]) s0, (Class[]) s1); }
+    if ((s0 instanceof Signature2) && (s1 instanceof Signature2)) {
+      return ((Signature2) s0).isAssignableFrom((Signature2) s1); }
+    if ((s0 instanceof Signature3) && (s1 instanceof Signature3)) {
+      return ((Signature3) s0).isAssignableFrom((Signature3) s1); }
+    if ((s0 instanceof Class) && (s1 instanceof Class)) {
+      return ((Class) s0).isAssignableFrom((Class) s1); }
+    if ((s0 instanceof SignatureN) && (s1 instanceof SignatureN)) {
+      return ((SignatureN) s0).isAssignableFrom((SignatureN) s1); }
+    return false; }
+
   private final boolean prefers (final Object x, 
                                  final Object y) {
 
@@ -108,7 +131,7 @@ public final class DynaFun implements IFn, IObj {
     // keys of the preferTable.
     for (final Object k : preferTable.keySet()) {
       if ((!x.equals(k)) 
-        && Signatures.isAssignableFrom(k,x) 
+        && isAssignableFrom(k,x) 
         && prefers(k,y)) { 
         return true; } }
 
@@ -135,7 +158,7 @@ public final class DynaFun implements IFn, IObj {
 
   private final boolean dominates (final Object x,
                                    final Object y) {
-    return prefers(x,y) || Signatures.isAssignableFrom(y,x); }
+    return prefers(x,y) || isAssignableFrom(y,x); }
 
   //--------------------------------------------------------------
   // arity 1
@@ -160,7 +183,7 @@ public final class DynaFun implements IFn, IObj {
     Set<Map.Entry> minima = new HashSet(); // should be immutable?
     for (final Object o : methodTable.entrySet()) {
       final Map.Entry e = (Map.Entry) o;
-      if (Signatures.isAssignableFrom(e.getKey(),k)) {
+      if (isAssignableFrom(e.getKey(),k)) {
         minima = updateMinima(e,minima); } } 
      if (minima.isEmpty()) { return null; } 
      else if (1 != minima.size()) {
@@ -197,7 +220,7 @@ public final class DynaFun implements IFn, IObj {
     Map.Entry bestEntry = null;
     for (final Object o : methodTable.entrySet()) {
       final Map.Entry e = (Map.Entry) o;
-      if (Signatures.isAssignableFrom(e.getKey(),k)) {
+      if (isAssignableFrom(e.getKey(),k)) {
         if ((bestEntry == null)
           || dominates(e.getKey(),bestEntry.getKey())) {
           bestEntry = e; }
@@ -239,7 +262,7 @@ public final class DynaFun implements IFn, IObj {
     Map.Entry bestEntry = null;
     for (final Object o : methodTable.entrySet()) {
       final Map.Entry e = (Map.Entry) o;
-      if (Signatures.isAssignableFrom(e.getKey(),k)) {
+      if (isAssignableFrom(e.getKey(),k)) {
         if ((bestEntry == null)
           || dominates(e.getKey(),bestEntry.getKey())) {
           bestEntry = e; }
@@ -279,7 +302,7 @@ public final class DynaFun implements IFn, IObj {
     Map.Entry bestEntry = null;
     for (final Object o : methodTable.entrySet()) {
       final Map.Entry e = (Map.Entry) o;
-      if (Signatures.isAssignableFrom(e.getKey(),k)) {
+      if (isAssignableFrom(e.getKey(),k)) {
         if ((bestEntry == null)
           || dominates(e.getKey(),bestEntry.getKey())) {
           bestEntry = e; }

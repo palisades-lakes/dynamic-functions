@@ -5,7 +5,7 @@ package palisades.lakes.dynafun.java;
  *
  * @author palisades dot lakes at gmail dot com
  * @since 2017-06-02
- * @version 2017-08-18
+ * @version 2017-10-09
  */
 
 @SuppressWarnings("unchecked")
@@ -15,12 +15,6 @@ public final class Signature2 implements Signature {
   private final Class class0;
   private final Class class1;
 
-  public final Class getClass (final int i) {
-    if (0 == i) { return class0; }
-    if (1 == i) { return class1; }
-    throw new IllegalArgumentException(
-      "Only 2 classes in a " + getClass().getSimpleName() + ": "
-      + i); }
   //--------------------------------------------------------------
 
   public final boolean isAssignableFrom (final Signature2 that) {
@@ -32,16 +26,9 @@ public final class Signature2 implements Signature {
   //--------------------------------------------------------------
 
   @Override
-  public final int size () { return 2; }
-
-  @Override
   public final boolean isAssignableFrom (final Signature that) {
     if (that instanceof Signature2) {
       return isAssignableFrom((Signature2) that); }
-    return false; }
-
-  @Override
-  public final boolean isAssignableFrom (final Class k) {
     return false; }
 
   @Override
@@ -60,23 +47,6 @@ public final class Signature2 implements Signature {
 
   @Override
   public final boolean isAssignableFrom (final Class... ks) {
-    return false; }
-
-  //--------------------------------------------------------------
-
-  @Override
-  public final boolean equiv (final Class k0,
-                              final Class k1) {
-    return class0.equals(k0) && class1.equals(k1); }
-
-  @Override
-  public final boolean equiv (final Class k0,
-                              final Class k1,
-                              final Class k2) {
-    return false; }
-
-  @Override
-  public final boolean equiv (final Class... ks) {
     return false; }
 
   //--------------------------------------------------------------
@@ -100,7 +70,7 @@ public final class Signature2 implements Signature {
 
   @Override
   public final String toString () {
-  return class0.getSimpleName() + "_" + class1.getSimpleName(); }
+    return class0.getSimpleName() + "_" + class1.getSimpleName(); }
 
   //--------------------------------------------------------------
   // TODO: memoize singleton instances?
