@@ -27,13 +27,13 @@
 (test/deftest transitive2
   (d/dynafun transitive2 {})
   (d/defmethod transitive2 [^B0 x0 ^B1 x1] 
-    [(d/signature B0 B1) (d/extract-signature x0 x1)])
+    [(d/to-signature B0 B1) (d/signature x0 x1)])
   (d/defmethod transitive2 [^C0 x0 ^C1 x1] 
-    [(d/signature C0 C1) (d/extract-signature x0 x1)])
+    [(d/to-signature C0 C1) (d/signature x0 x1)])
   (d/defpreference transitive2 
-                   (d/signature A0 A1) 
-                   (d/signature B0 B1))
-  (test/is (= [(d/signature C0 C1) (d/signature D0 D1)] 
+                   (d/to-signature A0 A1) 
+                   (d/to-signature B0 B1))
+  (test/is (= [(d/to-signature C0 C1) (d/to-signature D0 D1)] 
               (transitive2 (D0.) (D1.)))))
 ;;----------------------------------------------------------------
 ;; (prefers x ancestor-of-y) wrongly implies (prefers x y)
