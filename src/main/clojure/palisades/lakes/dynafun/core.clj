@@ -57,7 +57,7 @@
   (^Signature3 [^Class c0 ^Class c1 ^Class c2] 
     (Signature3. c0 c1 c2))
   (^SignatureN [^Class c0 ^Class c1 ^Class c2 & cs] 
-    (SignatureN. c0 c1 c2 ^clojure.lang.ArraySeq cs)))
+    (SignatureN. c0 c1 c2 ^clojure.lang.ASeq cs)))
 
 
 (defmacro signature 
@@ -82,7 +82,7 @@
        (Classes/classOf ~(with-meta x2 {:tag 'Object}))))
   ([x0 x1 x2 & xs] 
     `(SignatureN/extract 
-       ~x0 ~x1 ~x2 (with-meta ~xs {:tag 'clojure.lang.ArraySeq}))))
+       ~x0 ~x1 ~x2 (with-meta ~xs {:tag 'clojure.lang.ASeq}))))
 
 ;;----------------------------------------------------------------
 ;; dynamic functions
