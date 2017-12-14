@@ -31,8 +31,8 @@
   (d/defmethod transitive2 [^C0 x0 ^C1 x1] 
     [(d/to-signature C0 C1) (d/signature x0 x1)])
   (d/defpreference transitive2 
-                   (d/to-signature A0 A1) 
-                   (d/to-signature B0 B1))
+    (d/to-signature A0 A1) 
+    (d/to-signature B0 B1))
   (test/is (= [(d/to-signature C0 C1) (d/to-signature D0 D1)] 
               (transitive2 (D0.) (D1.)))))
 ;;----------------------------------------------------------------

@@ -2,14 +2,14 @@ package palisades.lakes.dynafun.java;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import clojure.lang.IFn;
 
 /** minimal immutable lookup table with linear search.
  *
  * @author palisades dot lakes at gmail dot com
- * @since 2017-08-31
- * @version 2017-09-05
+ * @version 2017-12-13
  */
 
 @SuppressWarnings("unchecked")
@@ -24,7 +24,7 @@ public final class ClassCache1 {
 
   public final IFn get (final Class c) {
     for (int i=0;i<classes0.length;i++) {
-      if (c.equals(classes0[i])) { return methods[i]; } }
+      if (Objects.equals(c,classes0[i])) { return methods[i]; } }
     return nonlinear.get(c); }
 
   //--------------------------------------------------------------
@@ -50,7 +50,7 @@ public final class ClassCache1 {
 
   private final int index (final Class c) {
     for (int i=0;i<classes0.length;i++) {
-      if (c.equals(classes0[i])) { return i; } }
+      if (Objects.equals(c,classes0[i])) { return i; } }
     return -1; }
 
   //--------------------------------------------------------------

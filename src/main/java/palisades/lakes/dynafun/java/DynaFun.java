@@ -3,6 +3,7 @@ package palisades.lakes.dynafun.java;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import clojure.lang.IFn;
@@ -14,8 +15,7 @@ import clojure.lang.PersistentArrayMap;
 /** Dynamic functions whose methods are all arity 1.
  *
  * @author palisades dot lakes at gmail dot com
- * @since 2017-09-03
- * @version 2017-10-09
+ * @version 2017-12-13
  */
 
 @SuppressWarnings("unchecked")
@@ -92,24 +92,25 @@ public final class DynaFun implements IFn, IObj {
   //--------------------------------------------------------------
 
   private static final boolean isAssignableFrom (final Class[] c0,
-                                                final Class[] c1) {
+                                                 final Class[] c1) {
     if (c0.length != c1.length) { return false; }
     for (int i=0;i<c0.length;i++) {
-      if (! c0[i].isAssignableFrom(c1[i])) { return false; } }
+      if (! Classes.isAssignableFrom(c0[i],c1[i])) { 
+        return false; } }
     return true; }
 
   private static final boolean isAssignableFrom (final Object s0,
-                                                final Object s1) {
+                                                 final Object s1) {
+    if ((null == s0) && (null == s1)) {
+      return true; }
     if ((s0 instanceof Class) && (s1 instanceof Class)) {
-      return ((Class) s0).isAssignableFrom((Class) s1); }
+      return Classes.isAssignableFrom((Class) s0,(Class) s1); }
     if ((s0 instanceof Class[]) && (s1 instanceof Class[])) {
       return isAssignableFrom((Class[]) s0, (Class[]) s1); }
     if ((s0 instanceof Signature2) && (s1 instanceof Signature2)) {
       return ((Signature2) s0).isAssignableFrom((Signature2) s1); }
     if ((s0 instanceof Signature3) && (s1 instanceof Signature3)) {
       return ((Signature3) s0).isAssignableFrom((Signature3) s1); }
-    if ((s0 instanceof Class) && (s1 instanceof Class)) {
-      return ((Class) s0).isAssignableFrom((Class) s1); }
     if ((s0 instanceof SignatureN) && (s1 instanceof SignatureN)) {
       return ((SignatureN) s0).isAssignableFrom((SignatureN) s1); }
     return false; }
@@ -130,7 +131,7 @@ public final class DynaFun implements IFn, IObj {
     // For multi-arity dispatch functions, we need to check the
     // keys of the preferTable.
     for (final Object k : preferTable.keySet()) {
-      if ((!x.equals(k)) 
+      if ((!Objects.equals(x,k)) 
         && isAssignableFrom(k,x) 
         && prefers(k,y)) { 
         return true; } }
@@ -175,24 +176,24 @@ public final class DynaFun implements IFn, IObj {
       if (! dominates(k0,k)) { updated.add(e); } } 
     if (add) { updated.add(e0); }
     return updated; }
-  
+
   private static final Map.Entry first (final Set<Map.Entry> i) {
     return i.iterator().next(); }
-  
+
   private final IFn findAndCacheBestMethod (final Class k) {
     Set<Map.Entry> minima = new HashSet(); // should be immutable?
     for (final Object o : methodTable.entrySet()) {
       final Map.Entry e = (Map.Entry) o;
       if (isAssignableFrom(e.getKey(),k)) {
         minima = updateMinima(e,minima); } } 
-     if (minima.isEmpty()) { return null; } 
-     else if (1 != minima.size()) {
-       throw new IllegalArgumentException(
-         String.format(
-           "Multiple methods in multimethod '%s' " + 
-             "match dispatch value: %s -> %s, " +
-             "and none is preferred",
-             _name, k, minima));  }
+    if (minima.isEmpty()) { return null; } 
+    else if (1 != minima.size()) {
+      throw new IllegalArgumentException(
+        String.format(
+          "Multiple methods in multimethod '%s' " + 
+            "match dispatch value: %s -> %s, " +
+            "and none is preferred",
+            _name, k, minima));  }
     final IFn method = (IFn) first(minima).getValue();
     cache1 = cache1.assoc(k,method);
     return method; }
@@ -324,6 +325,8 @@ public final class DynaFun implements IFn, IObj {
   //--------------------------------------------------------------
 
   private final IFn getMethod (final SignatureN k) {
+    System.out.println("SignatureN" + k);
+    System.out.println("cacheN" + cacheN);
     final IFn cached = cacheN.get(k);
     if (null != cached) { return cached; }
     final IFn method = findAndCacheBestMethod(k); 
@@ -352,7 +355,7 @@ public final class DynaFun implements IFn, IObj {
   public final Object invoke (final Object x) {
     return
       getMethod(
-        x.getClass())
+        Classes.classOf(x))
       .invoke(x); }
 
   @Override
@@ -360,8 +363,8 @@ public final class DynaFun implements IFn, IObj {
                               final Object x1) {
     return
       getMethod(
-        x0.getClass(),
-        x1.getClass())
+        Classes.classOf(x0),
+        Classes.classOf(x1))
       .invoke(x0,x1); }
 
   @Override
@@ -370,9 +373,9 @@ public final class DynaFun implements IFn, IObj {
                               final Object x2) {
     return
       getMethod(
-        x0.getClass(),
-        x1.getClass(),
-        x2.getClass())
+        Classes.classOf(x0),
+        Classes.classOf(x1),
+        Classes.classOf(x2))
       .invoke(
         x0,x1,x2); }
 
@@ -383,10 +386,10 @@ public final class DynaFun implements IFn, IObj {
                               final Object x3) {
     final SignatureN k = 
       new SignatureN(
-        x0.getClass(),
-        x1.getClass(),
-        x2.getClass(),
-        x3.getClass());
+        Classes.classOf(x0),
+        Classes.classOf(x1),
+        Classes.classOf(x2),
+        Classes.classOf(x3));
     return
       getMethod(k)
       .invoke(

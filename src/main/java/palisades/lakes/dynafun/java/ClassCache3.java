@@ -2,14 +2,14 @@ package palisades.lakes.dynafun.java;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import clojure.lang.IFn;
 
 /** minimal immutable lookup table with nested linear search.
  *
  * @author palisades dot lakes at gmail dot com
- * @since 2017-09-03
- * @version 2017-09-05
+ * @version 2017-12-13
  */
 
 @SuppressWarnings("unchecked")
@@ -28,23 +28,23 @@ public final class ClassCache3 {
                         final Class c1,
                         final Class c2) {
     for (int i0=0;i0<classes0.length;i0++) {
-      if (c0.equals(classes0[i0])) { 
+      if (Objects.equals(c0,classes0[i0])) { 
         final Class[] cs1 = classes1[i0];
         for (int i1=0;i1<cs1.length;i1++) {
-          if (c1.equals(cs1[i1])) {
+          if (Objects.equals(c1,cs1[i1])) {
             final Class[] cs2 = classes2[i0][i1];
             for (int i2=0;i2<cs2.length;i2++) {
-              if (c2.equals(cs2[i2])) {
+              if (Objects.equals(c2,cs2[i2])) {
                 return methods[i0][i1][i2]; } } } } } } 
     return nonlinear.get(new Signature3(c0,c1,c2)); }
 
   //--------------------------------------------------------------
 
   private ClassCache3 (final Class[] ks0, 
-                        final Class[][] ks1, 
-                        final Class[][][] ks2, 
-                        final IFn[][][] ms,
-                        final Map m) {
+                       final Class[][] ks1, 
+                       final Class[][][] ks2, 
+                       final IFn[][][] ms,
+                       final Map m) {
     classes0 = ks0;
     classes1 = ks1;
     classes2 = ks2;
@@ -63,14 +63,14 @@ public final class ClassCache3 {
 
   private final int index (final Class c0) {
     for (int i0=0;i0<classes0.length;i0++) {
-      if (c0.equals(classes0[i0])) { return i0; } }
+      if (Objects.equals(c0,classes0[i0])) { return i0; } }
     return -1; }
 
   private final int index (final int i0,
                            final Class c1) {
     final Class[] cs1 = classes1[i0];
     for (int i1=0;i1<cs1.length;i1++) {
-      if (c1.equals(cs1[i1])) { return i1; } }
+      if (Objects.equals(c1,cs1[i1])) { return i1; } }
     return -1; }
 
   private final int index (final int i0,
@@ -78,14 +78,14 @@ public final class ClassCache3 {
                            final Class c2) {
     final Class[] cs2 = classes2[i0][i1];
     for (int i2=0;i2<cs2.length;i2++) {
-      if (c2.equals(cs2[i2])) { return i2; } }
+      if (Objects.equals(c2,cs2[i2])) { return i2; } }
     return -1; }
 
   //--------------------------------------------------------------
 
   private final ClassCache3 addCell (final int i0,
-                                      final int i1,
-                                      final Class c2) {
+                                     final int i1,
+                                     final Class c2) {
     return new ClassCache3(
       Util.copy(classes0),
       Util.copy(classes1),
@@ -94,8 +94,8 @@ public final class ClassCache3 {
       nonlinear); }
 
   private final ClassCache3 addCell (final int i0,
-                                      final Class c1,
-                                      final Class c2) {
+                                     final Class c1,
+                                     final Class c2) {
     return new ClassCache3(
       Util.copy(classes0),
       Util.append(classes1,i0,c1),
@@ -104,8 +104,8 @@ public final class ClassCache3 {
       nonlinear); }
 
   private final ClassCache3 addCell (final Class c0,
-                                      final Class c1,
-                                      final Class c2) {
+                                     final Class c1,
+                                     final Class c2) {
     return new ClassCache3(
       Util.append(classes0,c0),
       Util.append(classes1,new Class[] { c1 }),
@@ -114,8 +114,8 @@ public final class ClassCache3 {
       nonlinear); }
 
   private final ClassCache3 ensureCell (final Class c0,
-                                         final Class c1,
-                                         final Class c2) {
+                                        final Class c1,
+                                        final Class c2) {
     final int i0 = index(c0);
     if (0 > i0) { return addCell(c0,c1,c2); }
     final int i1 = index(i0,c1);
@@ -127,9 +127,9 @@ public final class ClassCache3 {
   //--------------------------------------------------------------
 
   private final ClassCache3 set (final Class c0,
-                                  final Class c1,
-                                  final Class c2,
-                                  final IFn m) {
+                                 final Class c1,
+                                 final Class c2,
+                                 final IFn m) {
     final int i0 = index(c0);
     assert (0 <= i0);
     final int i1 = index(i0,c1);
@@ -153,9 +153,9 @@ public final class ClassCache3 {
   // re-implement if that isn't true.
 
   public final ClassCache3 assoc (final Class c0,
-                                   final Class c1,
-                                   final Class c2,
-                                   final IFn m) {
+                                  final Class c1,
+                                  final Class c2,
+                                  final IFn m) {
     return ensureCell(c0,c1,c2).set(c0,c1,c2,m); }
 
   //--------------------------------------------------------------
