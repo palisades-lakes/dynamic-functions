@@ -47,8 +47,8 @@
      </execution>
     </executions>
     <configuration>
-     <vmArgs>-ea -dsa</vmArgs>
-     <clojureOptions>-Dclojure.compiler.direct-linking=true</clojureOptions>
+     <vmArgs>${clojure.vmargs}</vmArgs>
+     <clojureOptions>${clojure.options}</clojureOptions>
      <namespaces>
       <namespace>!palisades.lakes.dynafun.doc.*</namespace>
      </namespaces>
